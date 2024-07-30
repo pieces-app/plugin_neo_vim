@@ -1,10 +1,15 @@
 import pynvim
+
+from .file_map import file_map
 from .settings import Settings
 from .api import get_version,version_check,is_pieces_opened
 from .websockets import ask_stream_ws,base_websocket
 from ._pieces_lib.pieces_os_client import QGPTStreamInput,QGPTQuestionInput,RelevantQGPTSeeds
 from .assets_snapshot import AssetSnapshot
 from .websockets.health_ws import HealthWS
+from .create_asset import create_asset,get_data
+
+file_map_reverse = {v:k for k,v in file_map.items()}
 
 @pynvim.plugin
 class Pieces:
@@ -72,6 +77,12 @@ class Pieces:
 	@is_pieces_opened
 	def get_version(self):
 		self.nvim.out_write(f"{get_version()}\n")
+
+	@pynvim.command("PiecesCreateSnippet") 
+	@is_pieces_opened 
+	def create_asset(self): 
+		create_asset(get_data(), file_map_reverse.get(self.nvim.api.buf_get_option(0, 'filetype')))
+
 
 	## LUA COMMANDS
 	@pynvim.command("PiecesSnippets")
